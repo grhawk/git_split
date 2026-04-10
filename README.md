@@ -78,6 +78,7 @@ Credentials and secrets:
 - No API keys or cloud credentials are required.
 - The script operates on your local Git checkout and uses your existing Git identity/config.
 - Commit signing is temporarily disabled during the automated rewrite to avoid interactive GPG failures.
+- `push-tag.sh` requires an `origin` remote and permission to push commits and tags.
 
 ### Run Locally
 
@@ -140,6 +141,13 @@ bash -n git_split.sh
 
 If this project grows, add a small shell-based integration test suite and run it in CI against a temporary repository fixture.
 
+GitHub Actions:
+- `.github/workflows/release.yml` mirrors the useful parts of the GitLab pipeline for this repo
+- pull requests fail if `CHANGELOG.md` is missing from the changeset
+- pushes, pull requests, and tags run shell-script validation
+- clean semver tags such as `0.1.0` must point to the default branch before a GitHub Release is created
+- release notes come from the matching section in `CHANGELOG.md`
+
 ## Deployment
 
 This project currently has no production service deployment. “Deployment” means publishing a new script revision for engineers to use.
@@ -149,7 +157,29 @@ Current release flow:
 2. Run the syntax check and a temporary-repo integration test.
 3. Open a pull request or otherwise request maintainer review.
 4. Merge to the main branch after approval.
-5. Consumers pull the updated script into their local checkout.
+5. Update `CHANGELOG.md` under `## [Unreleased]`.
+6. Create and push a plain semver tag such as `0.1.0`, or use `push-tag.sh`.
+7. GitHub Actions validates the tag and creates the GitHub Release from the matching changelog section.
+8. Consumers pull the updated script into their local checkout.
+
+Example release commands:
+
+```bash
+git tag 0.1.0
+git push origin 0.1.0
+```
+
+Or, if you are using the helper script:
+
+```bash
+./push-tag.sh 0.1.0
+```
+
+For clean semver releases, `push-tag.sh`:
+- rotates `## [Unreleased]` into `## [<version>] - <date>` inside `CHANGELOG.md`
+- commits the changelog update
+- creates the Git tag
+- pushes both the branch and the tag
 
 Environments:
 - Local development only today
@@ -162,6 +192,7 @@ Manual steps and approvals:
 Rollback:
 - If a rewrite goes wrong, reset your branch to the generated backup branch.
 - If a bad script revision is merged, revert the merge or restore the previous script version in Git.
+- If a bad release tag is pushed, delete the GitHub release and tag, fix the issue, update `CHANGELOG.md`, and publish a new version tag.
 
 ## FAQ / Gotchas
 
@@ -185,3 +216,6 @@ What if files depend on each other?
 
 What if `split-file` is used on a one-file commit?
 - The command rejects that case because there is no meaningful “remainder” commit to preserve with the original subject.
+
+Why do tags not start with `v`?
+- `push-tag.sh` and the CI currently treat release tags as plain semver values like `0.1.0`, matching the GitLab rules this repo was modeled on.
