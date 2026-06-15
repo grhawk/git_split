@@ -91,6 +91,10 @@ resolve_commit() {
   TARGET_COMMIT=$(git rev-parse "${target_input}^{commit}")
 }
 
+ensure_commit_in_history() {
+  git merge-base --is-ancestor "${TARGET_COMMIT}" HEAD || die "commit '${TARGET_COMMIT}' is not in the history of the current branch"
+}
+
 load_commit_metadata() {
   local parent_count
 
@@ -312,6 +316,7 @@ run_split() {
   require_git_repo
   ensure_no_rebase_in_progress
   resolve_commit "$1"
+  ensure_commit_in_history
   require_clean_worktree
   load_commit_metadata
 
@@ -341,6 +346,7 @@ run_split_file() {
   require_git_repo
   ensure_no_rebase_in_progress
   resolve_commit "${target_input}"
+  ensure_commit_in_history
   require_clean_worktree
   load_commit_metadata
 
