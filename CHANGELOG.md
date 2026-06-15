@@ -11,6 +11,8 @@ the `Unreleased` section into a dated release entry.
 
 ### Added
 
+- add validation to ensure the target commit is in the current branch's history before splitting
+
 ### Changed
 
 ### Deprecated
