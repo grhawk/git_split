@@ -11,6 +11,22 @@ the `Unreleased` section into a dated release entry.
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.1.1] - 2026-06-15
+
+### Breaking
+
+### Added
+
 - add validation to ensure the target commit is in the current branch's history before splitting
 
 ### Changed
@@ -22,7 +38,6 @@ the `Unreleased` section into a dated release entry.
 ### Fixed
 
 ### Security
-
 ## [0.1.0] - 2026-04-10
 
 ### Breaking
